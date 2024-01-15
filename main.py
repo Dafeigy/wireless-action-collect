@@ -1,89 +1,46 @@
 import keys
 import  time
 import os
-class Agent():
-    def __init__(self,keys:keys.Keys) -> None:
-        self.state = "idle"
-        self.action_dict = {
-            "idle":"",
-            "left":self.left,
-            "right":self.right,
-            "down":self.down,
-            "jump":self.jump,
-            "punch":self.punch,
-            "kick":self.kick
-        }
-        self.keys = keys
 
-    def left(self):
-        self.keys.directKey("a")
-        self.state = "left"
-
-    def right(self):
-        self.keys.directKey("d")
-        self.state = "right"
-
-    def down(self):
-        self.keys.directKey("s")
-        self.state = "down"
-
-    def jump(self):
-        self.keys.directKey("w")
-        self.state = "jump"
-        time.sleep(0.01)
-        self.keys.directKey("w",keys.key_release)
-        self.state = "idle"
-
-    def punch(self):
-        self.keys.directKey("i")
-        self.state = "punch"
-        time.sleep(0.002)
-        self.keys.directKey("i",keys.key_release)
-        self.state = "idle"
-
-
-    def kick(self):
-        self.keys.directKey("k")
-        self.state = "kick"
-        time.sleep(0.002)
-        self.keys.directKey("k",keys.key_release)
-        self.state = "idle"
-
-    def release(self,prev_state):
-        if prev_state == "idle":
-            pass
-        else:
-            keys.directKey(self.action_dict[prev_state], keys.key_release)
-            self.state = "idle"
 def save_data(time,path):
         with open(path,"a") as f:
             f.write(str(time)+'\n')
         f.close()
+
+
 if __name__ == "__main__":
+    DATA_SET_NAME = "DATASET_2024"
     Mode = "COLLECT"
     COUNT_DOWN= 8
     ACTION_NAME = "punch"
-    INDEX = 1
-    DURATION = 2
-    NUM_ACTIONS = 10
+    INDEX = 2
+    DURATION = 4
+    NUM_ACTIONS = 20
     keys = keys.Keys()
-    pathname = rf"NEWdata/{INDEX}/{ACTION_NAME}/time-data.txt"
+    pathname = rf"{DATA_SET_NAME}/{INDEX}/{ACTION_NAME}/time-data.txt"
     if os.path.exists(pathname):
         raise ValueError("文件已存在，请重新命名保存文件！")
     else:
         os.makedirs(os.path.dirname(pathname), exist_ok=True)
 
-    for i in [i for i in range(1,COUNT_DOWN + 1)][::-1]:
+    for i in [_ for _ in range(1,COUNT_DOWN + 1)][::-1]:
         print(i)
         time.sleep(1)
+
     if Mode == "COLLECT":
         for i in range(NUM_ACTIONS):
+            print(f"======= Start Epoch {i+1}/{NUM_ACTIONS} NOW =======")
             keys.directKey("s")
-            save_data(time.time(),pathname)
-            time.sleep(DURATION)
+            save_data(rf"{time.time()},action",pathname)
+            for _ in [i for i in range(1,DURATION+1)][::-1]:
+                print(_)
+                time.sleep(1)
+            print("======== SWITCH TO IDLE ! ========")
             keys.directKey("s",keys.key_release)
-            save_data(time.time(),pathname)
-            time.sleep(DURATION)
+            save_data(rf"{time.time()},idle",pathname)
+            for _ in [i for i in range(1,DURATION+1)][::-1]:
+                print(_)
+                time.sleep(1)
 
     if Mode == "TEST":
         keys.directKey("w")
